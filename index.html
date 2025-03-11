@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Contagem Regressiva para 16:48</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #contador {
+      font-size: 2em;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tempo restante para 16:48 (Horário de Brasília)</h1>
+  <div id="contador">Carregando...</div>
+
+  <script>
+    function atualizarContador() {
+      const agora = new Date();
+
+      // Cria um novo Date para hoje às 16:48
+      let target = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 16, 48, 0);
+
+      // Se já passou de 16:48, conta para o dia seguinte
+      if (agora > target) {
+        target.setDate(target.getDate() + 1);
+      }
+
+      // Calcula a diferença em milissegundos
+      const diff = target - agora;
+
+      // Converte em horas, minutos e segundos
+      const horas = Math.floor(diff / (1000 * 60 * 60));
+      const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const segundos = Math.floor((diff % (1000 * 60)) / 1000);
+
+      // Exibe no HTML
+      document.getElementById('contador').textContent = 
+        `${horas}h ${minutos}min ${segundos}s`;
+
+      // Atualiza a cada segundo
+      setTimeout(atualizarContador, 1000);
+    }
+
+    atualizarContador();
+  </script>
+</body>
+</html>
