@@ -2,52 +2,175 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Contagem Regressiva para 16:48</title>
+  <title>Contador de Saída do Trabalho</title>
+
+  <!-- Fonte bonita -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    #contador {
-      font-size: 2em;
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      height: 100vh;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #333;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #222;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    input[type="time"] {
+      padding: 10px;
+      width: 100%;
+      border: 2px solid #eee;
+      border-radius: 8px;
+      font-size: 1em;
+      margin-bottom: 15px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="time"]:focus {
+      border-color: #4facfe;
+      outline: none;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #00f2fe, #4facfe);
+      transform: translateY(-2px);
+    }
+
+    #contador {
+      margin-top: 30px;
+      font-size: 1.5em;
+      color: #333;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.8em;
+      color: #aaa;
     }
   </style>
 </head>
+
 <body>
-  <h1>Tempo restante para 16:48 (Horário de Brasília)</h1>
-  <div id="contador">Carregando...</div>
+  <div class="container">
+    <h1>⏰ Quanto tempo falta para sair?</h1>
+
+    <label for="entrada">Horário de entrada:</label>
+    <input type="time" id="entrada" value="07:00">
+
+    <button onclick="iniciarContador()">Iniciar Jornada</button>
+
+    <div id="contador">Informe seu horário de entrada!</div>
+
+    <div class="footer">Desenvolvido por Douglas</div>
+  </div>
 
   <script>
-    function atualizarContador() {
-      const agora = new Date();
+    let entradaInformada = false;
+    let horaSaidaReal;
 
-      // Cria um novo Date para hoje às 16:48
-      let target = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), 16, 48, 0);
+    function iniciarContador() {
+      const entradaInput = document.getElementById('entrada').value;
 
-      // Se já passou de 16:48, conta para o dia seguinte
-      if (agora > target) {
-        target.setDate(target.getDate() + 1);
+      if (!entradaInput) {
+        alert("Por favor, informe seu horário de entrada.");
+        return;
       }
 
-      // Calcula a diferença em milissegundos
-      const diff = target - agora;
+      const [horaEntrada, minutoEntrada] = entradaInput.split(':').map(Number);
 
-      // Converte em horas, minutos e segundos
+      // Horário padrão: entrou às 07:00, sai às 16:48
+      const horaPadraoEntrada = 7;
+      const minutoPadraoEntrada = 0;
+      const horaPadraoSaida = 16;
+      const minutoPadraoSaida = 48;
+
+      // Diferença em minutos
+      const diferencaEntradaMinutos = (horaEntrada * 60 + minutoEntrada) - (horaPadraoEntrada * 60 + minutoPadraoEntrada);
+
+      // Calcula a saída ajustada
+      let saidaEmMinutos = (horaPadraoSaida * 60 + minutoPadraoSaida) + diferencaEntradaMinutos;
+
+      let horaSaida = Math.floor(saidaEmMinutos / 60);
+      let minutoSaida = saidaEmMinutos % 60;
+
+      if (horaSaida >= 24) {
+        horaSaida -= 24; // ajusta se passar das 24h
+      }
+
+      horaSaidaReal = { hora: horaSaida, minuto: minutoSaida };
+      entradaInformada = true;
+
+      atualizarContador();
+    }
+
+    function atualizarContador() {
+      if (!entradaInformada) {
+        document.getElementById('contador').textContent = "Informe seu horário de entrada!";
+        return;
+      }
+
+      const agora = new Date();
+      const saida = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate(), horaSaidaReal.hora, horaSaidaReal.minuto, 0);
+
+      if (agora >= saida) {
+        document.getElementById('contador').textContent = "🎉 Você já pode ir embora!";
+        return;
+      }
+
+      const diff = saida - agora;
+
       const horas = Math.floor(diff / (1000 * 60 * 60));
       const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const segundos = Math.floor((diff % (1000 * 60)) / 1000);
 
-      // Exibe no HTML
-      document.getElementById('contador').textContent = 
-        `${horas}h ${minutos}min ${segundos}s`;
-
-      // Atualiza a cada segundo
-      setTimeout(atualizarContador, 1000);
+      document.getElementById('contador').textContent =
+        `⏳ Faltam ${horas}h ${minutos}min ${segundos}s para sair`;
     }
 
-    atualizarContador();
+    setInterval(atualizarContador, 1000);
   </script>
 </body>
 </html>
